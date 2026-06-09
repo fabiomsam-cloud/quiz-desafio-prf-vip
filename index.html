@@ -176,6 +176,23 @@
   .medio-box p{font-size:15.5px;color:#2c3654;margin-bottom:15px}
   .medio-box p strong{color:var(--navy)}
 
+  /* ---------- video interstitial ---------- */
+  .video-screen{padding:40px 0 60px;text-align:center}
+  .video-screen .eyebrow-dark{display:inline-block;border:1px solid rgba(46,91,186,.4);color:var(--blue);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:18px}
+  .video-title{font-size:clamp(22px,5.6vw,30px);font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.2}
+  .video-title span{color:var(--blue)}
+  .video-sub{color:var(--muted);font-size:15.5px;max-width:450px;margin:0 auto 24px}
+  .video-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:24px}
+  .video-frame iframe,.video-frame video{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:#9fb0d4;font-size:15px;font-weight:600;background:linear-gradient(165deg,#24407a,var(--navy-deep));padding:20px;text-align:center}
+  .video-placeholder span{font-size:34px}
+  .video-cta{min-height:62px;display:flex;align-items:center;justify-content:center}
+  .video-wait{display:flex;align-items:center;justify-content:center;gap:11px;color:var(--muted);font-size:14px;font-weight:600}
+  .video-wait .spinner{width:18px;height:18px;flex:0 0 auto;border:2.5px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.video-wait .spinner{animation:none}}
+  .video-btn{animation:fade .5s ease both}
+
   /* ---------- pitch ---------- */
   .pitch{display:none;background:var(--paper)}
   .pitch.show{display:block;animation:fade .5s ease both}
@@ -320,6 +337,22 @@
   </div>
 </section>
 
+<!-- ===== VÍDEO (interstitial antes do diagnóstico) ===== -->
+<section class="screen" id="screen-video">
+  <div class="wrap video-screen">
+    <span class="eyebrow-dark">Diagnóstico em processamento</span>
+    <h2 class="video-title">Estamos preparando seu diagnóstico<span id="videoNome"></span>...</h2>
+    <p class="video-sub">Leva só um instante. Enquanto isso, assista a este vídeo rápido do Delegado Fábio Silva — ele explica o que o seu resultado significa e qual é o próximo passo.</p>
+    <div class="video-frame" id="videoFrame">
+      <div class="video-placeholder"><span>🎥</span>Seu vídeo aparece aqui</div>
+    </div>
+    <div class="video-cta">
+      <div class="video-wait" id="videoWait"><span class="spinner"></span> Preparando seu diagnóstico… aguarde o vídeo</div>
+      <button class="btn btn-cta video-btn" id="diagBtn" onclick="revealDiagnosis()" style="display:none">Quero meu diagnóstico</button>
+    </div>
+  </div>
+</section>
+
 <!-- ===== RESULT ===== -->
 <section class="screen" id="screen-result">
   <div class="wrap result" id="resultContent"></div>
@@ -434,6 +467,8 @@
    ==================================================================== */
 const CHECKOUT_VIP_URL = "https://pay.hotmart.com/T98991120Q?sck=quizz|pago|elite-prf-lancamento-jul26|botao|fabio&checkoutMode=10&bid=1771518045126"; // link de venda do ingresso VIP
 const LEAD_WEBHOOK_URL = "https://webhook2.manager01.scvpgti.com.br/webhook/quiz-professor-fabio414e4d76-2ff4-4f30-b421-d6811b617666"; // (opcional) endpoint/CRM/Lovable pra receber o lead. Vazio = não envia.
+const VIDEO_EMBED_URL = ""; // link do vídeo (YouTube, ex: https://youtu.be/XXXX | Vimeo | ou URL de embed). Vazio = mostra "vídeo em breve".
+const BUTTON_DELAY_SECONDS = 120; // tempo (em segundos) até liberar o botão "Quero meu diagnóstico". 120 = 2 minutos.
 
 /* ==================================================================== */
 const QUESTIONS = [
@@ -533,6 +568,46 @@ function submitLead(){
   lead.avatar = getAvatar(answers.formacao);
   sendLead(lead);
 
+  showVideoScreen();
+}
+
+/* ---------- tela de vídeo (interstitial) ---------- */
+let diagTimer = null;
+function toEmbedUrl(url){
+  if(!url) return '';
+  let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})/);
+  if(m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1&playsinline=1`;
+  m = url.match(/vimeo\.com\/(\d+)/);
+  if(m) return `https://player.vimeo.com/video/${m[1]}`;
+  return url; // assume que já é um link de embed
+}
+function showVideoScreen(){
+  document.getElementById('topbar').classList.add('hidden');
+  const first = (lead.nome||'').split(' ')[0];
+  document.getElementById('videoNome').textContent = first ? (', ' + first) : '';
+
+  const frame = document.getElementById('videoFrame');
+  const embed = toEmbedUrl(VIDEO_EMBED_URL);
+  if(embed){
+    frame.innerHTML = `<iframe src="${embed}" title="Vídeo do diagnóstico" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+  } else {
+    frame.innerHTML = `<div class="video-placeholder"><span>🎥</span>Seu vídeo aparece aqui</div>`;
+  }
+
+  const btn = document.getElementById('diagBtn');
+  const wait = document.getElementById('videoWait');
+  btn.style.display = 'none';
+  wait.style.display = 'flex';
+  show('screen-video');
+
+  clearTimeout(diagTimer);
+  diagTimer = setTimeout(()=>{
+    wait.style.display = 'none';
+    btn.style.display = 'inline-flex';
+    btn.scrollIntoView({behavior: prefersReduced()?'instant':'smooth', block:'center'});
+  }, BUTTON_DELAY_SECONDS*1000);
+}
+function revealDiagnosis(){
   renderResult();
   show('screen-result');
 }
