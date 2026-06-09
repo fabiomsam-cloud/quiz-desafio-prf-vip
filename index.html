@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico PRF — Você está pronto?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2D5C; --navy-2:#142348; --navy-deep:#0e1830;
+    --blue:#2E5BBA; --blue-light:#5b86d9;
+    --green:#548235; --green-light:#6ba43f;
+    --red:#C00000; --orange:#ED7D31;
+    --paper:#F5F6FA; --white:#ffffff;
+    --ink:#1a2236; --muted:#646e85; --line:#e3e7f0;
+    --gold:#E0B64A;
+    --shadow:0 10px 40px rgba(20,35,72,.12);
+    --shadow-soft:0 4px 18px rgba(20,35,72,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper); color:var(--ink);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .display{font-family:'Barlow Condensed','Inter',sans-serif;text-transform:uppercase;letter-spacing:.01em;line-height:1.04}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px}
+
+  /* ---------- top bar / progress ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:var(--navy);color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .topbar-inner{max-width:560px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;gap:10px}
+  .badge{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-weight:700;letter-spacing:.04em;font-size:15px}
+  .badge .shield{width:22px;height:22px;flex:0 0 auto}
+  .phase-tag{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-light)}
+  .progress{height:4px;background:rgba(255,255,255,.14);width:100%}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-light));width:0;transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .topbar.hidden{display:none}
+
+  /* ---------- screens ---------- */
+  .screen{display:none;animation:fade .45s ease both}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    .screen{animation:none}
+    .progress-fill{transition:none}
+  }
+
+  /* ---------- intro ---------- */
+  .intro{
+    background:radial-gradient(120% 90% at 50% -10%,#24407a 0%,var(--navy) 45%,var(--navy-deep) 100%);
+    color:#fff;min-height:100vh;display:flex;align-items:center;
+    padding:48px 0;
+  }
+  .intro-card{text-align:center}
+  .intro .eyebrow{
+    display:inline-block;border:1px solid rgba(224,182,74,.5);color:var(--gold);
+    font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    padding:6px 14px;border-radius:100px;margin-bottom:24px;
+  }
+  .intro h1{font-size:clamp(30px,8vw,44px);font-weight:700;margin-bottom:18px}
+  .intro h1 em{font-style:normal;color:var(--gold)}
+  .intro p{color:#cdd6ea;font-size:16px;max-width:430px;margin:0 auto 30px}
+  .start-meta{display:flex;justify-content:center;gap:22px;margin:26px 0 32px;flex-wrap:wrap}
+  .start-meta div{font-size:12px;color:#9fb0d4;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .start-meta b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:24px;color:#fff;font-weight:700}
+  .authority-line{margin-top:36px;font-size:13px;color:#9fb0d4;border-top:1px solid rgba(255,255,255,.1);padding-top:20px}
+  .authority-line b{color:#fff}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em;
+    font-weight:700;font-size:20px;
+    border:none;border-radius:12px;cursor:pointer;
+    padding:17px 30px;width:100%;max-width:420px;
+    transition:transform .12s ease,box-shadow .2s ease,background .2s ease;
+  }
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 22px rgba(46,91,186,.4)}
+  .btn-primary:hover{background:#2950a3;transform:translateY(-2px)}
+  .btn-cta{background:linear-gradient(180deg,#6ba43f,var(--green));color:#fff;box-shadow:0 10px 28px rgba(84,130,53,.45);font-size:22px}
+  .btn-cta:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(84,130,53,.55)}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+  /* ---------- question screen ---------- */
+  .q-screen{padding:30px 0 50px}
+  .q-counter{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .q-title{font-size:clamp(22px,5.4vw,28px);font-weight:700;color:var(--navy);margin-bottom:22px;line-height:1.22}
+  .options{display:flex;flex-direction:column;gap:11px}
+  .opt{
+    display:flex;align-items:center;gap:13px;
+    background:#fff;border:1.5px solid var(--line);border-radius:13px;
+    padding:16px 17px;cursor:pointer;text-align:left;font-size:16px;font-weight:500;color:var(--ink);
+    transition:border-color .15s,background .15s,transform .1s;
+  }
+  .opt:hover{border-color:var(--blue-light);background:#fafbff}
+  .opt:active{transform:scale(.99)}
+  .opt.selected{border-color:var(--blue);background:#eef3fc}
+  .opt .marker{
+    width:24px;height:24px;flex:0 0 auto;border-radius:50%;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .opt.selected .marker{border-color:var(--blue);background:var(--blue)}
+  .opt.selected .marker::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
+  .opt:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .back-link{display:inline-flex;align-items:center;gap:6px;margin-top:24px;background:none;border:none;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .back-link:hover{color:var(--navy)}
+
+  /* ---------- capture ---------- */
+  .capture{padding:40px 0 60px;text-align:center}
+  .capture .lock{width:54px;height:54px;margin:0 auto 18px;color:var(--green)}
+  .capture h2{font-size:clamp(24px,6vw,30px);font-weight:700;color:var(--navy);margin-bottom:10px}
+  .capture p{color:var(--muted);font-size:15px;margin-bottom:26px}
+  .field{text-align:left;margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px}
+  .field input{
+    width:100%;border:1.5px solid var(--line);border-radius:11px;padding:14px 15px;
+    font-size:16px;font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s;
+  }
+  .field input:focus{outline:none;border-color:var(--blue)}
+  .field input.err{border-color:var(--red)}
+  .err-msg{color:var(--red);font-size:12.5px;margin-top:5px;display:none}
+  .err-msg.show{display:block}
+  .privacy{font-size:12px;color:var(--muted);margin-top:16px}
+
+  /* ---------- result / diagnosis ---------- */
+  .result{padding:34px 0 10px}
+  .verdict{
+    background:linear-gradient(165deg,#24407a,var(--navy) 55%,var(--navy-deep));
+    color:#fff;border-radius:20px;padding:34px 26px 30px;text-align:center;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .verdict::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 0%,rgba(224,182,74,.16),transparent 70%)}
+  .verdict-label{position:relative;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:14px}
+  .gauge{position:relative;width:188px;height:188px;margin:0 auto 8px}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .track{fill:none;stroke:rgba(255,255,255,.12);stroke-width:13}
+  .gauge .meter{fill:none;stroke:url(#g1);stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1)}
+  .gauge-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge-num b{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:700;line-height:1}
+  .gauge-num span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#bcccea;margin-top:2px}
+  .verdict h2{position:relative;font-size:clamp(21px,5.4vw,26px);font-weight:700;margin-top:6px;line-height:1.2}
+  .verdict h2 em{font-style:normal;color:var(--gold)}
+
+  .diag-body{padding:26px 2px 0}
+  .diag-body p{font-size:15.5px;color:#2c3654;margin-bottom:16px}
+  .diag-body p strong{color:var(--navy)}
+  .syndrome{
+    background:#fff;border-left:4px solid var(--orange);border-radius:0 13px 13px 0;
+    padding:18px 18px;margin:6px 0 18px;box-shadow:var(--shadow-soft);
+  }
+  .syndrome .tag{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-weight:700;color:var(--orange);letter-spacing:.04em;font-size:18px;margin-bottom:4px}
+  .syndrome p{font-size:14.5px;color:#3a4566;margin:0}
+  .opp{
+    background:var(--navy);color:#fff;border-radius:16px;padding:22px 20px;margin:20px 0;
+  }
+  .opp .tag{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;color:var(--gold);font-weight:700;letter-spacing:.05em;font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .opp p{font-size:14.5px;color:#d4dcf0;margin-bottom:12px}
+  .opp p:last-child{margin-bottom:0}
+  .opp b{color:#fff}
+  .opp .salary{border-top:1px solid rgba(255,255,255,.14);padding-top:12px;font-weight:600;color:#fff}
+  .diag-cta{text-align:center;padding:8px 0 4px}
+  .diag-cta .hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* medio honest screen */
+  .medio-box{background:#fff;border-radius:18px;padding:30px 24px;box-shadow:var(--shadow);text-align:left}
+  .medio-box .icon{width:46px;height:46px;color:var(--blue);margin-bottom:14px}
+  .medio-box h2{font-size:24px;color:var(--navy);font-weight:700;margin-bottom:14px}
+  .medio-box p{font-size:15.5px;color:#2c3654;margin-bottom:15px}
+  .medio-box p strong{color:var(--navy)}
+
+  /* ---------- pitch ---------- */
+  .pitch{display:none;background:var(--paper)}
+  .pitch.show{display:block;animation:fade .5s ease both}
+  .pitch-hero{background:linear-gradient(165deg,var(--navy),var(--navy-deep));color:#fff;padding:46px 0 40px;text-align:center;margin-top:30px}
+  .pitch-hero .eyebrow{display:inline-block;background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:6px;margin-bottom:18px}
+  .pitch-hero h2{font-size:clamp(27px,6.6vw,38px);font-weight:700;margin-bottom:14px}
+  .pitch-hero h2 em{font-style:normal;color:var(--gold)}
+  .pitch-hero p{color:#cdd6ea;font-size:16px;max-width:440px;margin:0 auto}
+  .pitch-hero .when{margin-top:20px;display:inline-flex;align-items:center;gap:10px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:19px;letter-spacing:.03em;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:9px 18px;border-radius:100px}
+
+  .section{padding:40px 0}
+  .section h3{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:clamp(23px,5.6vw,30px);font-weight:700;color:var(--navy);text-align:center;margin-bottom:8px;line-height:1.12}
+  .section .sub{text-align:center;color:var(--muted);font-size:15px;max-width:430px;margin:0 auto 26px}
+
+  .ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ba-col{border-radius:14px;padding:18px 16px}
+  .ba-col.before{background:#fff;border:1.5px solid var(--line)}
+  .ba-col.after{background:#eef5e8;border:1.5px solid #cfe0bd}
+  .ba-col h4{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:18px;font-weight:700;margin-bottom:12px;letter-spacing:.03em}
+  .ba-col.before h4{color:var(--muted)}
+  .ba-col.after h4{color:var(--green)}
+  .ba-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .ba-col li{font-size:13.5px;display:flex;gap:8px;align-items:flex-start;line-height:1.35}
+  .ba-col li svg{width:16px;height:16px;flex:0 0 auto;margin-top:2px}
+  .ba-col.before li svg{color:#b9c0d0}
+  .ba-col.after li svg{color:var(--green)}
+
+  /* authority */
+  .author{background:#fff;border-radius:18px;box-shadow:var(--shadow-soft);padding:26px 22px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .author .avatar{width:84px;height:84px;border-radius:50%;background:linear-gradient(160deg,#24407a,var(--navy));display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:3px solid var(--gold)}
+  .author .avatar svg{width:42px;height:42px;color:#fff}
+  .author h4{font-size:20px;color:var(--navy);font-weight:700}
+  .author .role{font-size:13px;color:var(--blue);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+  .author p{font-size:14.5px;color:#3a4566;max-width:420px}
+  .author .stats{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+  .author .stats div b{font-family:'Barlow Condensed',sans-serif;font-size:26px;color:var(--navy);display:block;line-height:1;font-weight:700}
+  .author .stats div span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+
+  /* trilha anchor */
+  .trilha{background:var(--navy);color:#fff;border-radius:18px;padding:30px 24px;text-align:center}
+  .trilha .badge-num{font-family:'Barlow Condensed',sans-serif;font-size:62px;font-weight:700;color:var(--gold);line-height:.9}
+  .trilha .badge-num span{font-size:16px;display:block;letter-spacing:.1em;color:#fff;text-transform:uppercase;margin-top:4px}
+  .trilha h4{font-size:22px;font-weight:700;margin:16px 0 10px}
+  .trilha p{font-size:14.5px;color:#d4dcf0;max-width:420px;margin:0 auto}
+  .trilha p b{color:#fff}
+
+  /* includes */
+  .includes{display:flex;flex-direction:column;gap:11px;margin-top:8px}
+  .inc{display:flex;gap:13px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .inc .ic{width:38px;height:38px;flex:0 0 auto;border-radius:9px;background:#eef3fc;display:flex;align-items:center;justify-content:center;color:var(--blue)}
+  .inc .ic svg{width:20px;height:20px}
+  .inc b{display:block;font-size:15px;color:var(--navy);font-weight:600}
+  .inc span{font-size:13px;color:var(--muted)}
+
+  /* offer card */
+  .offer{background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:30px 24px;text-align:center;border-top:5px solid var(--gold)}
+  .offer .kicker{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:18px;letter-spacing:.04em;color:var(--blue);font-weight:700}
+  .offer .name{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:700;color:var(--navy);text-transform:uppercase;line-height:1;margin:2px 0 18px}
+  .offer .price-main{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--navy)}
+  .offer .price-install{font-size:15px;color:var(--muted);margin-top:2px}
+  .offer .price-install b{color:var(--ink)}
+  .offer .price-cash{font-size:13px;color:var(--muted);margin-top:6px}
+  .offer .btn{margin:20px auto 0}
+  .offer .guarantee{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:18px;font-size:13px;color:var(--green);font-weight:600}
+  .offer .guarantee svg{width:18px;height:18px}
+  .offer .scarcity{font-size:13px;color:var(--red);font-weight:600;margin-top:14px}
+
+  .closing{text-align:center;padding:30px 0 50px}
+  .closing .sig{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:.03em}
+  .closing .sig span{display:block;font-family:'Inter';text-transform:none;font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0;margin-top:3px}
+
+  .footer{background:var(--navy-deep);color:#7e8bab;text-align:center;font-size:11.5px;padding:22px 18px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar hidden" id="topbar">
+  <div class="topbar-inner">
+    <div class="badge">
+      <svg class="shield" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z" fill="#E0B64A"/><path d="M9.5 12l1.8 1.8 3.5-3.6" stroke="#1B2D5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Diagnóstico PRF
+    </div>
+    <div class="phase-tag" id="phaseTag">Sobre você</div>
+  </div>
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div id="app"></div>
+
+<!-- ===== INTRO ===== -->
+<section class="screen active" id="screen-intro">
+  <div class="intro">
+    <div class="wrap intro-card">
+      <span class="eyebrow">Delegado Fábio Silva · PRF</span>
+      <h1>Descubra se você está <em>pronto</em> pra disputar o maior concurso da história da PRF</h1>
+      <p>Responda 10 perguntas rápidas e receba um diagnóstico personalizado da sua prontidão pra carreira de Policial Rodoviário Federal.</p>
+      <div class="start-meta">
+        <div><b>2 min</b>pra responder</div>
+        <div><b>10</b>perguntas</div>
+        <div><b>100%</b>gratuito</div>
+      </div>
+      <button class="btn btn-primary" onclick="start()">Começar meu diagnóstico</button>
+      <div class="authority-line">Criado pelo <b>Delegado Fábio Silva</b> — de 48 reprovações a Delegado de Polícia. <b>+5.000 aprovações</b> em 16 anos formando concurseiros.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUESTION ===== -->
+<section class="screen" id="screen-question">
+  <div class="wrap q-screen">
+    <div class="q-counter" id="qCounter">Pergunta 1 de 10</div>
+    <h2 class="q-title" id="qTitle"></h2>
+    <div class="options" id="qOptions"></div>
+    <button class="back-link" id="backLink" onclick="prevQuestion()" style="display:none">← Voltar</button>
+  </div>
+</section>
+
+<!-- ===== CAPTURE ===== -->
+<section class="screen" id="screen-capture">
+  <div class="wrap capture">
+    <svg class="lock" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="15.5" r="1.6" fill="currentColor"/></svg>
+    <h2>Seu diagnóstico está pronto</h2>
+    <p>Pra onde enviamos a versão completa e garantimos a sua vaga no Desafio PRF?</p>
+    <div class="field">
+      <label for="fNome">Seu nome</label>
+      <input type="text" id="fNome" placeholder="Como você se chama?" autocomplete="name">
+      <div class="err-msg" id="eNome">Digite seu nome.</div>
+    </div>
+    <div class="field">
+      <label for="fWhats">WhatsApp (com DDD)</label>
+      <input type="tel" id="fWhats" placeholder="(00) 00000-0000" autocomplete="tel" inputmode="numeric">
+      <div class="err-msg" id="eWhats">Digite um WhatsApp válido com DDD.</div>
+    </div>
+    <div class="field">
+      <label for="fEmail">E-mail</label>
+      <input type="email" id="fEmail" placeholder="seu@email.com" autocomplete="email" inputmode="email">
+      <div class="err-msg" id="eEmail">Digite um e-mail válido.</div>
+    </div>
+    <button class="btn btn-primary" onclick="submitLead()">Ver meu diagnóstico</button>
+    <div class="privacy">🔒 Seus dados estão seguros e não serão compartilhados.</div>
+  </div>
+</section>
+
+<!-- ===== RESULT ===== -->
+<section class="screen" id="screen-result">
+  <div class="wrap result" id="resultContent"></div>
+
+  <!-- PITCH (revelado só pra quem tem superior) -->
+  <div class="pitch" id="pitch">
+    <div class="pitch-hero">
+      <div class="wrap">
+        <span class="eyebrow">Vagas VIP limitadas</span>
+        <h2>Você não precisa esperar mais. O <em>Desafio PRF</em> começa em 6 e 7 de julho.</h2>
+        <p>2 dias ao vivo com o Delegado Fábio Silva pra você sair da Síndrome da Espera e entrar preparado pra disputar o maior concurso da história da PRF.</p>
+        <div class="when">📅 6 e 7 de julho · ao vivo</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="wrap">
+        <h3>O que muda quando você entra</h3>
+        <p class="sub">A diferença não é estudar mais. É estudar com direção.</p>
+        <div class="ba-grid">
+          <div class="ba-col before">
+            <h4>Hoje</h4>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Estudando sem direção</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Sem saber por onde começar</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Esperando o edital sair pra agir</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Achando que não é pra você</li>
+            </ul>
+          </div>
+          <div class="ba-col after">
+            <h4>Depois</h4>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Um método pra estudar com 2h por dia</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Direção clara do primeiro ao último dia</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pronto antes do edital ser publicado</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>A certeza de que o perfil é o seu</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="author">
+          <div class="avatar"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="currentColor"/></svg></div>
+          <h4>Delegado Fábio Silva</h4>
+          <div class="role">Delegado de Polícia · Fundador do SCVP</div>
+          <p>Foram 48 reprovações antes da primeira aprovação. A virada não veio do talento — veio do método. Hoje ele ensina exatamente o caminho que ninguém tinha mostrado pra ele.</p>
+          <div class="stats">
+            <div><b>16</b><span>anos formando</span></div>
+            <div><b>+10mil</b><span>alunos</span></div>
+            <div><b>+5mil</b><span>aprovações</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="trilha">
+          <div class="badge-num">10<span>missões</span></div>
+          <h4>O que separa quem assiste de quem entra pronto</h4>
+          <p>O coração do VIP é a <b>Trilha das 10 Missões</b>: um caminho guiado, dia após dia, até o evento. Quem cumpre a trilha completa chega no Desafio decidido — e os números mostram que é justamente esse percurso o que mais separa quem só assiste de quem realmente sai do lugar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
+        <h3>Tudo o que você recebe no VIP</h3>
+        <div class="includes">
+          <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div><b>Trilha das 10 Missões guiadas</b><span>Um caminho dia a dia até o evento</span></div></div>
+          <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16l-7-3-7 3V4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div><div><b>Aulas de aquecimento + Simulado Diagnóstico PRF</b><span>Você chega no evento sabendo onde está</span></div></div>
+          <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="9" r="2.3" stroke="currentColor" stroke-width="1.6"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5M15 15c2.5 0 5 1.6 5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div><div><b>Grupo VIP com acompanhamento do Fábio</b><span>Perto de quem já passou pelo caminho</span></div></div>
+          <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><b>Replay das 2 lives por 48h</b><span>Assiste no seu tempo, sem perder nada</span></div></div>
+          <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 6.9H22l-6 4.6 2.3 7L12 16.9 5.7 20.5l2.3-7-6-4.6h7.6L12 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div><div><b>Prioridade no atendimento + sorteios ao vivo</b><span>Você é atendido primeiro</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
+        <div class="offer">
+          <div class="kicker">Ingresso</div>
+          <div class="name">Desafio PRF VIP</div>
+          <div class="price-install">por <b>12x de R$ 9,73</b></div>
+          <div class="price-cash">ou R$ 99,90 à vista</div>
+          <a class="btn btn-cta" id="checkoutBtn" href="#" target="_blank" rel="noopener">Quero minha vaga VIP</a>
+          <div class="guarantee"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Garantia de 7 dias — risco zero</div>
+          <div class="scarcity">⚠ Vagas VIP limitadas — quem entra começa a trilha agora</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="closing">
+      <div class="wrap">
+        <div class="sig">Delegado Fábio Silva<span>Mais de 5 mil alunos aprovados</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  Sou Concurseiro e Vou Passar · CNPJ 21.894.883/0001-09<br>
+  Este diagnóstico é uma ferramenta de orientação e não garante aprovação. As 5.000 vagas estão condicionadas à aprovação da PEC da Segurança; 533 vagas estão confirmadas neste momento.
+</div>
+
+<script>
+/* ====================================================================
+   CONFIGURAÇÃO — preencher antes de publicar
+   ==================================================================== */
+const CHECKOUT_VIP_URL = "https://pay.hotmart.com/T98991120Q?sck=quizz|pago|elite-prf-lancamento-jul26|botao|fabio&checkoutMode=10&bid=1771518045126"; // link de venda do ingresso VIP
+const LEAD_WEBHOOK_URL = "https://webhook2.manager01.scvpgti.com.br/webhook/quiz-professor-fabio414e4d76-2ff4-4f30-b421-d6811b617666"; // (opcional) endpoint/CRM/Lovable pra receber o lead. Vazio = não envia.
+
+/* ==================================================================== */
+const QUESTIONS = [
+  {id:'idade', phase:'Sobre você', q:'Qual a sua idade?', options:[
+    {v:'18-24',l:'18 a 24 anos'},{v:'25-34',l:'25 a 34 anos'},{v:'35-44',l:'35 a 44 anos'},{v:'45-55',l:'45 a 55 anos'},{v:'56+',l:'56 anos ou mais'}]},
+  {id:'formacao', phase:'Sobre você', q:'Qual a sua formação hoje?', options:[
+    {v:'medio',l:'Ensino Médio'},{v:'cursando',l:'Cursando faculdade'},{v:'superior',l:'Superior completo'},{v:'tecnologo',l:'Tecnólogo'},{v:'pos',l:'Pós-graduação'},{v:'mestrado',l:'Mestrado ou Doutorado'}]},
+  {id:'carreira', phase:'Sobre você', q:'Você já pensou em ter uma carreira pública, com estabilidade e bom salário?', options:[
+    {v:'muitas',l:'Sim, muitas vezes'},{v:'asvezes',l:'Às vezes penso nisso'},{v:'nunca',l:'Nunca tinha parado pra pensar'}]},
+  {id:'renda', phase:'A sua realidade hoje', q:'Quanto você ganha hoje, em média, por mês?', options:[
+    {v:'ate19',l:'Até R$ 1.900'},{v:'19-28',l:'R$ 1.900 a R$ 2.800'},{v:'28-46',l:'R$ 2.800 a R$ 4.600'},{v:'46+',l:'Acima de R$ 4.600'},{v:'semrenda',l:'Estou sem renda agora'}]},
+  {id:'satisfacao', phase:'A sua realidade hoje', q:'Você está satisfeito com o que ganha e com a estabilidade do seu trabalho hoje?', options:[
+    {v:'realizado',l:'Sim, estou realizado'},{v:'queriamais',l:'Pago as contas, mas queria mais'},{v:'merecomais',l:'Não, sinto que mereço muito mais'},{v:'inseguro',l:'Estou inseguro, posso perder meu trabalho'}]},
+  {id:'obstaculo', phase:'A sua realidade hoje', q:'O que mais te impede HOJE de estudar pra um concurso?', options:[
+    {v:'tempo',l:'Falta de tempo — trabalho o dia todo'},{v:'comecar',l:'Não sei por onde começar'},{v:'metodo',l:'Já tentei e me perdi sem método'},{v:'naopramim',l:'Acho que não é pra mim'},{v:'financeiro',l:'Questão financeira'}]},
+  {id:'pensamento', phase:'A sua realidade hoje', q:'Quando você pensa em começar, qual pensamento mais aparece?', options:[
+    {v:'idade',l:'“Já passou da minha idade, não é pra mim”'},{v:'tempo',l:'“Não tenho tempo, é impossível”'},{v:'edital',l:'“Melhor esperar o edital sair”'},{v:'medo',l:'“Eu quero, mas bate o medo de não dar conta”'}]},
+  {id:'mudanca', phase:'O que você quer', q:'Se você passasse na PRF e ganhasse acima de R$ 12 mil por mês, qual seria a PRIMEIRA mudança na sua vida?', options:[
+    {v:'sair',l:'Sair do meu trabalho atual'},{v:'familia',l:'Dar conforto e segurança pra minha família'},{v:'estabilidade',l:'Conquistar estabilidade e dormir tranquilo'},{v:'sonho',l:'Realizar um sonho que ficou pra trás'}]},
+  {id:'move', phase:'O que você quer', q:'O que mais te move na ideia de ser PRF?', options:[
+    {v:'salario',l:'O salário e a estabilidade'},{v:'respeito',l:'O respeito e a realização pessoal'},{v:'mudar',l:'Mudar de vida por completo'},{v:'futuro',l:'Garantir o futuro de quem eu amo'}]},
+  {id:'prontidao', phase:'O que você quer', q:'Se existisse um método pra você estar preparado em poucos meses, estudando só 2h por dia, você...?', options:[
+    {v:'agora',l:'Começaria agora mesmo, decidido'},{v:'norte',l:'Começaria, mas preciso de um norte claro'},{v:'medo',l:'Tenho vontade, mas bate o medo'},{v:'esperaria',l:'Esperaria pra ver se é o momento'}]},
+];
+
+const answers = {};
+let idx = 0;
+const lead = {};
+
+const FORMACAO_LABEL = {medio:'Ensino Médio',cursando:'cursando o ensino superior',superior:'ensino superior completo',tecnologo:'formação de tecnólogo',pos:'pós-graduação',mestrado:'mestrado/doutorado'};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function start(){
+  document.getElementById('topbar').classList.remove('hidden');
+  idx = 0;
+  renderQuestion();
+  show('screen-question');
+}
+
+function renderQuestion(){
+  const Q = QUESTIONS[idx];
+  document.getElementById('phaseTag').textContent = Q.phase;
+  document.getElementById('qCounter').textContent = `Pergunta ${idx+1} de ${QUESTIONS.length}`;
+  document.getElementById('qTitle').textContent = Q.q;
+  document.getElementById('progressFill').style.width = ((idx)/QUESTIONS.length*100) + '%';
+  const box = document.getElementById('qOptions');
+  box.innerHTML = '';
+  Q.options.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = 'opt' + (answers[Q.id]===opt.v?' selected':'');
+    b.innerHTML = `<span class="marker"></span><span>${opt.l}</span>`;
+    b.onclick = ()=>choose(Q.id,opt.v);
+    box.appendChild(b);
+  });
+  document.getElementById('backLink').style.display = idx>0 ? 'inline-flex' : 'none';
+}
+
+function choose(qid,val){
+  answers[qid]=val;
+  renderQuestion();
+  setTimeout(nextQuestion, 230);
+}
+
+function nextQuestion(){
+  if(idx < QUESTIONS.length-1){ idx++; renderQuestion(); }
+  else { document.getElementById('progressFill').style.width='100%'; show('screen-capture'); }
+}
+function prevQuestion(){ if(idx>0){ idx--; renderQuestion(); } }
+
+/* ---------- captura ---------- */
+function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function digits(s){ return (s||'').replace(/\D/g,''); }
+
+function submitLead(){
+  const nome = document.getElementById('fNome').value.trim();
+  const whats = document.getElementById('fWhats').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+
+  const okNome  = nome.length >= 2;
+  const okWhats = digits(whats).length >= 10;
+  const okEmail = validEmail(email);
+
+  toggleErr('fNome','eNome', okNome);
+  toggleErr('fWhats','eWhats', okWhats);
+  toggleErr('fEmail','eEmail', okEmail);
+
+  if(!(okNome && okWhats && okEmail)) return;
+
+  lead.nome = nome; lead.whatsapp = digits(whats); lead.email = email;
+  lead.respostas = {...answers};
+  lead.escolaridade = answers.formacao;       // pra segmentar grupo VIP / Gratuito Superior / Ensino Médio
+  lead.avatar = getAvatar(answers.formacao);
+  sendLead(lead);
+
+  renderResult();
+  show('screen-result');
+}
+
+function toggleErr(inputId, errId, valid){
+  const inp = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if(valid){ inp.classList.remove('err'); err.classList.remove('show'); }
+  else { inp.classList.add('err'); err.classList.add('show'); }
+  return valid;
+}
+
+function sendLead(data){
+  // TODO: integrar com o CRM / plataforma de aquecimento (Lovable, webhook, etc.)
+  // O campo data.escolaridade já vem pronto pra rotear o lead pro grupo certo.
+  console.log('LEAD CAPTURADO:', data);
+  if(LEAD_WEBHOOK_URL){
+    try{
+      fetch(LEAD_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    }catch(e){ console.warn('Falha ao enviar lead:', e); }
+  }
+}
+
+/* ---------- avatar ---------- */
+function getAvatar(f){
+  if(f==='tecnologo') return 'pragmatico';
+  if(f==='pos'||f==='mestrado') return 'credencialista';
+  if(f==='superior') return 'mainstream';
+  if(f==='cursando') return 'cauteloso';
+  return 'medio';
+}
+
+/* ---------- score (apenas público com superior) ---------- */
+function computeScore(){
+  let s = 72;
+  const f = answers.formacao;
+  s += ({tecnologo:24, pos:22, mestrado:20, superior:21, cursando:14})[f] || 0;
+  s += ({agora:5, norte:4, medo:3, esperaria:2})[answers.prontidao] || 0;
+  s += ({merecomais:3, inseguro:3, queriamais:2, realizado:1})[answers.satisfacao] || 0;
+  return Math.max(86, Math.min(97, s));
+}
+
+/* ---------- textos dinâmicos ---------- */
+function sintomaTexto(){
+  return ({
+    idade:'“não é pra mim, já passou da minha idade”',
+    tempo:'“não tenho tempo, é impossível”',
+    edital:'“melhor esperar o edital sair”',
+    medo:'“eu quero, mas bate o medo de não dar conta”'
+  })[answers.pensamento] || '“ainda não é a hora”';
+}
+
+function requisitoTexto(av){
+  if(av==='cauteloso') return 'Você está cursando o ensino superior — ou seja, já está construindo o requisito principal pra entrar na PRF. Dá pra começar a se preparar agora e chegar pronto antes mesmo de se formar.';
+  const formLabel = FORMACAO_LABEL[answers.formacao] || 'ensino superior';
+  return `Você marcou que tem <strong>${formLabel}</strong> — ou seja, você já tem o requisito que falta pra maioria das pessoas que sonham com a PRF: o <strong>ensino superior</strong>.`;
+}
+
+function avatarInsight(av){
+  return ({
+    pragmatico:'Pelo seu perfil, você é do tipo que quer resultado, não mais um diploma. Quer mudar de carreira de forma rápida e prática — e a boa notícia é que, pra isso, você não precisa de mais nenhum título. Você precisa de método.',
+    credencialista:'Você valoriza formação — e na PRF dá pra ir além do cargo: somar a credencial de Policial Rodoviário Federal a uma Pós em Direito Policial. Duas diferenciações num movimento só.',
+    mainstream:'Seu perfil é exatamente o de quem mais tem passado: profissional com superior, que decidiu que merece uma vida melhor.',
+    cauteloso:'Você quer, mas é cauteloso — e tudo bem. Dá pra começar no seu ritmo, com um caminho claro, enquanto se forma.'
+  })[av] || '';
+}
+
+function renderResult(){
+  const av = getAvatar(answers.formacao);
+  const box = document.getElementById('resultContent');
+  const pitch = document.getElementById('pitch');
+
+  if(av==='medio'){
+    pitch.classList.remove('show');
+    box.innerHTML = `
+      <div class="medio-box">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.1" fill="currentColor"/></svg>
+        <h2>Olha, ${escapeHtml(lead.nome.split(' ')[0])} — vamos ser diretos e honestos com você.</h2>
+        <p>É assim que a gente trabalha aqui. A PRF exige <strong>ensino superior completo</strong> pra tomar posse no cargo. Hoje, pelo que você respondeu, o ensino superior ainda é um passo que falta no seu caminho.</p>
+        <p>Isso <strong>não te elimina do jogo</strong> — só muda a ordem das coisas. O seu primeiro passo é a graduação. E o desejo de mudar de vida que te trouxe até aqui é absolutamente real e válido.</p>
+        <p>Guarda esse diagnóstico. Quando o ensino superior estiver no seu caminho, a PRF — e o maior concurso da história dela — vai estar te esperando. Continue se preparando.</p>
+      </div>`;
+    return;
+  }
+
+  const score = computeScore();
+  const R = 80, C = 2*Math.PI*R;
+  box.innerHTML = `
+    <div class="verdict">
+      <div class="verdict-label">Diagnóstico de prontidão</div>
+      <div class="gauge">
+        <svg width="188" height="188" viewBox="0 0 188 188">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E0B64A"/><stop offset="1" stop-color="#6ba43f"/></linearGradient></defs>
+          <circle class="track" cx="94" cy="94" r="${R}"/>
+          <circle class="meter" id="meter" cx="94" cy="94" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/>
+        </svg>
+        <div class="gauge-num"><b id="scoreNum">0</b><span>pronto</span></div>
+      </div>
+      <h2>${escapeHtml(lead.nome.split(' ')[0])}, você está <em>mais perto</em> do que imagina.</h2>
+    </div>
+
+    <div class="diag-body">
+      <p>${requisitoTexto(av)}</p>
+      <p>${avatarInsight(av)}</p>
+
+      <div class="syndrome">
+        <div class="tag">Síndrome da Espera</div>
+        <p>Você disse que, quando pensa em começar, o que vem é ${sintomaTexto()}. Isso tem nome: é a crença invisível que mantém gente capaz parada — esperando o momento perfeito que nunca chega. E não é culpa sua.</p>
+      </div>
+
+      <p>Porque o que te separou de uma aprovação até hoje <strong>nunca foi falta de capacidade</strong>. Foi falta de método e de direção. Capacidade você já tem.</p>
+
+      <div class="opp">
+        <div class="tag">⚡ Por que agora</div>
+        <p>A PRF já protocolou o pedido de um novo concurso — são <b>533 vagas confirmadas</b> neste momento, podendo chegar a <b>cerca de 5 mil se a PEC da Segurança for aprovada</b>: a maior leva da história da corporação.</p>
+        <p>O último edital está com a validade vencendo. Quem espera o edital sair começa atrasado. Quem começa agora, chega pronto.</p>
+        <p class="salary">Salário inicial acima de R$ 12 mil, podendo passar de R$ 20 mil ao longo da carreira.</p>
+      </div>
+
+      <div class="diag-cta">
+        <button class="btn btn-cta" onclick="openPitch()">Quero sair da espera — me mostre o caminho</button>
+        <div class="hint">Veja como entrar no Desafio PRF ↓</div>
+      </div>
+    </div>`;
+
+  // animação do medidor + contador
+  requestAnimationFrame(()=>{
+    const meter = document.getElementById('meter');
+    const offset = C - (score/100)*C;
+    if(!prefersReduced()){ meter.style.strokeDashoffset = offset; }
+    else { meter.style.transition='none'; meter.style.strokeDashoffset = offset; }
+    countUp('scoreNum', score);
+  });
+}
+
+function openPitch(){
+  const p = document.getElementById('pitch');
+  document.getElementById('checkoutBtn').href = CHECKOUT_VIP_URL || '#';
+  p.classList.add('show');
+  setTimeout(()=>{ p.scrollIntoView({behavior: prefersReduced()?'instant':'smooth', block:'start'}); }, 60);
+}
+
+function countUp(id, target){
+  const el = document.getElementById(id);
+  if(prefersReduced()){ el.textContent = target+'%'; return; }
+  let cur = 0;
+  const step = ()=>{ cur += Math.max(1, Math.round((target-cur)/8)); if(cur>=target){ el.textContent=target+'%'; return; } el.textContent=cur+'%'; requestAnimationFrame(step); };
+  setTimeout(step, 350);
+}
+
+function prefersReduced(){ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* máscara simples de WhatsApp */
+document.getElementById('fWhats').addEventListener('input', e=>{
+  let v = digits(e.target.value).slice(0,11);
+  if(v.length>=7) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+  else if(v.length>=3) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+  else if(v.length>=1) v = `(${v}`;
+  e.target.value = v;
+});
+</script>
+</body>
+</html>
