@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diagnóstico PRF — Você está pronto?</title>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '297518201669282');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=297518201669282&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -492,7 +509,7 @@
           <div class="name">Desafio PRF VIP</div>
           <div class="price-install">por <b>12x de R$ 9,73</b></div>
           <div class="price-cash">ou R$ 99,90 à vista</div>
-          <a class="btn btn-cta" id="checkoutBtn" href="#" target="_blank" rel="noopener">Quero minha vaga VIP</a>
+          <a class="btn btn-cta" id="checkoutBtn" href="#" target="_blank" rel="noopener" onclick="if(window.fbq)fbq('track','InitiateCheckout')">Quero minha vaga VIP</a>
           <img class="seal-img" src="img/selo-7-dias.png" alt="Garantia de 7 dias">
           <div class="guarantee">Garantia incondicional de 7 dias — risco zero</div>
           <div class="scarcity">⚠ Vagas VIP limitadas — quem entra começa a trilha agora</div>
@@ -619,6 +636,7 @@ function submitLead(){
   lead.escolaridade = answers.formacao;       // pra segmentar grupo VIP / Gratuito Superior / Ensino Médio
   lead.avatar = getAvatar(answers.formacao);
   sendLead(lead);
+  if(window.fbq) fbq('track', 'Lead');   // Meta Pixel: lead capturado
 
   showVideoScreen();
 }
