@@ -264,6 +264,21 @@
   .closing .sig{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:18px;font-weight:700;color:var(--navy);letter-spacing:.03em}
   .closing .sig span{display:block;font-family:'Inter';text-transform:none;font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0;margin-top:3px}
 
+  /* ---------- identidade visual (imagens) ---------- */
+  .badge img.shield{width:24px;height:24px;flex:0 0 auto;object-fit:contain}
+  .intro-logo{width:min(300px,74%);height:auto;margin:0 auto 20px;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4))}
+  .intro-hero{width:100%;border-radius:16px;display:block;margin:6px 0 26px;border:2px solid rgba(224,182,74,.55);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .author-photo{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;margin-bottom:16px;border:2px solid var(--gold)}
+  .news-img{width:100%;border-radius:12px;display:block;margin:4px 0 14px;border:1px solid rgba(255,255,255,.18)}
+  .seal-img{width:90px;height:90px;display:block;margin:2px auto 8px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.2))}
+  .bonus-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .bonus{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 12px 16px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;text-align:center}
+  .bonus img{width:100%;height:158px;object-fit:contain;margin-bottom:11px}
+  .bonus .bonus-tag{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-weight:700;font-size:13px;letter-spacing:.05em;color:var(--orange);margin-bottom:3px}
+  .bonus b{font-size:14.5px;color:var(--navy);line-height:1.2;margin-bottom:5px}
+  .bonus span{font-size:12.5px;color:var(--muted);line-height:1.35}
+  .bonus-total{margin-top:16px;text-align:center;background:#eef5e8;border:1.5px dashed #cfe0bd;border-radius:12px;padding:14px 16px;font-size:14.5px;color:var(--green);font-weight:700}
+
   .footer{background:var(--navy-deep);color:#7e8bab;text-align:center;font-size:11.5px;padding:22px 18px;line-height:1.6}
 </style>
 </head>
@@ -273,7 +288,7 @@
 <div class="topbar hidden" id="topbar">
   <div class="topbar-inner">
     <div class="badge">
-      <svg class="shield" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z" fill="#E0B64A"/><path d="M9.5 12l1.8 1.8 3.5-3.6" stroke="#1B2D5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <img class="shield" src="img/brasao-prf.png" alt="Brasão PRF">
       Diagnóstico PRF
     </div>
     <div class="phase-tag" id="phaseTag">Sobre você</div>
@@ -287,8 +302,10 @@
 <section class="screen active" id="screen-intro">
   <div class="intro">
     <div class="wrap intro-card">
+      <img class="intro-logo" src="img/logo-desafio-prf.png" alt="Desafio PRF">
       <span class="eyebrow">Delegado Fábio Silva · PRF</span>
       <h1>Descubra se você está <em>pronto</em> pra disputar o maior concurso da história da PRF</h1>
+      <img class="intro-hero" src="img/policiais-prf.jpg" alt="Policiais Rodoviários Federais">
       <p>Responda 10 perguntas rápidas e receba um diagnóstico personalizado da sua prontidão pra carreira de Policial Rodoviário Federal.</p>
       <div class="start-meta">
         <div><b>2 min</b>pra responder</div>
@@ -398,7 +415,7 @@
     <div class="section" style="padding-top:0">
       <div class="wrap">
         <div class="author">
-          <div class="avatar"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="currentColor"/></svg></div>
+          <img class="author-photo" src="img/fabio-palco.jpg" alt="Delegado Fábio Silva no palco">
           <h4>Delegado Fábio Silva</h4>
           <div class="role">Delegado de Polícia · Fundador do SCVP</div>
           <p>Foram 48 reprovações antes da primeira aprovação. A virada não veio do talento — veio do método. Hoje ele ensina exatamente o caminho que ninguém tinha mostrado pra ele.</p>
@@ -436,13 +453,48 @@
 
     <div class="section" style="padding-top:0">
       <div class="wrap">
+        <h3>E ainda leva 4 bônus de preparação</h3>
+        <p class="sub">Materiais que normalmente são vendidos à parte — seus, sem custo extra, ao garantir o ingresso VIP.</p>
+        <div class="bonus-grid">
+          <div class="bonus">
+            <img src="img/bonus-taf.jpg" alt="Guia Prático do TAF-PRF">
+            <div class="bonus-tag">Bônus #1</div>
+            <b>Guia Prático do TAF-PRF</b>
+            <span>Treine do zero e chegue pronto pras 4 etapas do teste físico.</span>
+          </div>
+          <div class="bonus">
+            <img src="img/bonus-raiox.jpg" alt="Raio-X PRF">
+            <div class="bonus-tag">Bônus #2</div>
+            <b>Raio-X PRF</b>
+            <span>O mapa do que mais cai — foque no que realmente importa.</span>
+          </div>
+          <div class="bonus">
+            <img src="img/bonus-arsenal.jpg" alt="Arsenal Elite Federal">
+            <div class="bonus-tag">Bônus #3</div>
+            <b>Arsenal Elite Federal</b>
+            <span>Seu caderno de batalha pra fixar o conteúdo de vez.</span>
+          </div>
+          <div class="bonus">
+            <img src="img/bonus-manual.jpg" alt="Manual de Preparação PRF">
+            <div class="bonus-tag">Bônus #4</div>
+            <b>Manual de Preparação PRF</b>
+            <span>O passo a passo pra organizar seus estudos desde o dia 1.</span>
+          </div>
+        </div>
+        <div class="bonus-total">🎁 Os 4 bônus já vêm inclusos no seu ingresso VIP — de graça.</div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
         <div class="offer">
           <div class="kicker">Ingresso</div>
           <div class="name">Desafio PRF VIP</div>
           <div class="price-install">por <b>12x de R$ 9,73</b></div>
           <div class="price-cash">ou R$ 99,90 à vista</div>
           <a class="btn btn-cta" id="checkoutBtn" href="#" target="_blank" rel="noopener">Quero minha vaga VIP</a>
-          <div class="guarantee"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5l8-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Garantia de 7 dias — risco zero</div>
+          <img class="seal-img" src="img/selo-7-dias.png" alt="Garantia de 7 dias">
+          <div class="guarantee">Garantia incondicional de 7 dias — risco zero</div>
           <div class="scarcity">⚠ Vagas VIP limitadas — quem entra começa a trilha agora</div>
         </div>
       </div>
@@ -723,6 +775,7 @@ function renderResult(){
       <div class="opp">
         <div class="tag">⚡ Por que agora</div>
         <p>A PRF já protocolou o pedido de um novo concurso — são <b>533 vagas confirmadas</b> neste momento, podendo chegar a <b>cerca de 5 mil se a PEC da Segurança for aprovada</b>: a maior leva da história da corporação.</p>
+        <img class="news-img" src="img/noticia-vagas.jpg" alt="Notícia: novo pedido de concurso PRF com mais de 5 mil vagas">
         <p>O último edital está com a validade vencendo. Quem espera o edital sair começa atrasado. Quem começa agora, chega pronto.</p>
         <p class="salary">Salário inicial acima de R$ 12 mil, podendo passar de R$ 20 mil ao longo da carreira.</p>
       </div>
