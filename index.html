@@ -295,6 +295,13 @@ src="https://www.facebook.com/tr?id=297518201669282&ev=PageView&noscript=1"
   .bonus b{font-size:14.5px;color:var(--navy);line-height:1.2;margin-bottom:5px}
   .bonus span{font-size:12.5px;color:var(--muted);line-height:1.35}
   .bonus-total{margin-top:16px;text-align:center;background:#eef5e8;border:1.5px dashed #cfe0bd;border-radius:12px;padding:14px 16px;font-size:14.5px;color:var(--green);font-weight:700}
+  .plat-shot{width:100%;display:block;margin:2px auto 4px;filter:drop-shadow(0 16px 32px rgba(20,35,72,.2))}
+  .plat-cap{text-align:center;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:20px}
+  .pgallery{display:grid;grid-template-columns:1.25fr 1fr;grid-auto-rows:1fr;gap:11px;margin-top:6px}
+  .pgallery .pg{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-soft);min-height:118px}
+  .pgallery .pg img{width:100%;height:100%;object-fit:cover;display:block}
+  .pgallery .pg-main{grid-row:span 2}
+  .pgallery .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,transparent,rgba(14,24,48,.85));color:#fff;font-size:11.5px;font-weight:600;padding:22px 12px 9px}
 
   .footer{background:var(--navy-deep);color:#7e8bab;text-align:center;font-size:11.5px;padding:22px 18px;line-height:1.6}
 </style>
@@ -447,6 +454,18 @@ src="https://www.facebook.com/tr?id=297518201669282&ev=PageView&noscript=1"
 
     <div class="section" style="padding-top:0">
       <div class="wrap">
+        <h3>Quem confiou no método</h3>
+        <p class="sub">Resultados reais de quem estudou com direção — não com sorte.</p>
+        <div class="pgallery">
+          <div class="pg pg-main"><img src="img/prova-alunos.jpg" alt="Centenas de alunos do Delegado Fábio Silva"><div class="cap">Centenas de alunos que confiaram no método</div></div>
+          <div class="pg"><img src="img/prova-formatura.jpg" alt="Formatura na PRF com alunos aprovados"><div class="cap">Formatura na PRF</div></div>
+          <div class="pg"><img src="img/prova-abraco.jpg" alt="Aluna aprovada na PRF"><div class="cap">Mais um sonho realizado</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="padding-top:0">
+      <div class="wrap">
         <div class="trilha">
           <div class="badge-num">IA<span>no comando</span></div>
           <h4>Você escolhe a PRF. A Inteligência Artificial cuida do resto.</h4>
@@ -458,6 +477,8 @@ src="https://www.facebook.com/tr?id=297518201669282&ev=PageView&noscript=1"
     <div class="section" style="padding-top:0">
       <div class="wrap">
         <h3>Tudo o que você recebe no Plano</h3>
+        <img class="plat-shot" src="img/plataforma.png" alt="Plano Aprovação PRF no computador, tablet e celular">
+        <div class="plat-cap">📱 No computador, tablet ou celular — seu plano vai com você</div>
         <div class="includes">
           <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><div><b>Cronograma personalizado por IA</b><span>O que estudar hoje, montado conforme o seu tempo</span></div></div>
           <div class="inc"><div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="9" r="6" stroke="currentColor" stroke-width="1.7"/><path d="m9 14-1 8 4-2 4 2-1-8" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div><b>35 Ovos de Ouro</b><span>Os assuntos de maior peso — foque no que decide a prova</span></div></div>
